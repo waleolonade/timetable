@@ -1,5 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import React, { useState, useEffect, useContext } from 'react';
 import { SettingsContext } from '../../context/SettingsContext';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import TopHeader from '../../components/common/TopHeader';
@@ -7,7 +6,12 @@ import axios from 'axios';
 import { CalendarDays, BookOpen, Clock } from 'lucide-react';
 
 const StudentDashboard = ({ setAuth }) => {
-  const { user } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) setUser(JSON.parse(userData));
+  }, []);
   const { settings } = useContext(SettingsContext);
   const [timetables, setTimetables] = useState([]);
   const [loading, setLoading] = useState(true);

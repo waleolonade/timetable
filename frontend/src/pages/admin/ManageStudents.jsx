@@ -1,10 +1,14 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../../context/AuthContext';
 import { Search, Plus, Trash2, Filter, Upload, Download } from 'lucide-react';
 
 const ManageStudents = () => {
-  const { user } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) setUser(JSON.parse(userData));
+  }, []);
   const [students, setStudents] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
