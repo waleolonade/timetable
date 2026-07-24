@@ -11,6 +11,7 @@ import ManageGeneralCourses from './pages/admin/ManageGeneralCourses';
 import ManageClassrooms from './pages/admin/ManageClassrooms';
 import ManageTimetables from './pages/admin/ManageTimetables';
 import ManageUsers from './pages/admin/ManageUsers';
+import ManageStudents from './pages/admin/ManageStudents';
 import SystemLogs from './pages/admin/SystemLogs';
 import ManageSecurity from './pages/admin/ManageSecurity';
 import HodDashboard from './pages/hod/HodDashboard';
@@ -18,6 +19,7 @@ import HodManageCourses from './pages/hod/HodManageCourses';
 import HodManageClassrooms from './pages/hod/HodManageClassrooms';
 import HodTimetables from './pages/hod/HodTimetables';
 import HodManageLecturers from './pages/hod/HodManageLecturers';
+import StudentDashboard from './pages/student/StudentDashboard';
 import './styles/App.css';
 
 // A protected route component
@@ -76,6 +78,7 @@ function App() {
           <Route path="general-courses" element={<ManageGeneralCourses />} />
           <Route path="classrooms" element={<ManageClassrooms />} />
           <Route path="timetables" element={<ManageTimetables />} />
+          <Route path="students" element={<ManageStudents />} />
           <Route path="logs" element={<SystemLogs />} />
           <Route path="security" element={<ManageSecurity />} />
           
@@ -98,15 +101,30 @@ function App() {
           <Route path="classrooms" element={<HodManageClassrooms />} />
           <Route path="lecturers" element={<HodManageLecturers />} />
           <Route path="timetables" element={<HodTimetables />} />
+          <Route path="students" element={<ManageStudents />} />
         </Route>
         
+        <Route 
+          path="/student" 
+          element={
+            <ProtectedRoute isAuth={isAuthenticated}>
+              <StudentDashboard setAuth={setIsAuthenticated} />
+            </ProtectedRoute>
+          } 
+        >
+          <Route index element={<Navigate to="/student/dashboard" replace />} />
+          <Route path="dashboard" element={<StudentDashboard setAuth={setIsAuthenticated} />} />
+          <Route path="courses" element={<StudentDashboard setAuth={setIsAuthenticated} />} />
+          <Route path="timetable" element={<StudentDashboard setAuth={setIsAuthenticated} />} />
+        </Route>
         <Route 
           path="/" 
           element={
             <ProtectedRoute isAuth={isAuthenticated}>
-              {/* Note: In a real app we would check role here. For now we route to admin if authenticated, but if HOD tries to access Admin they will get blocked by API. Actually, let's just let them go to admin dashboard and the sidebar will adjust, or we explicitly redirect based on localStorage role. */}
-              {localStorage.getItem('user') && JSON.parse(localStorage.getItem('user')).role === 'hod' ? 
+              {localStorage.getItem('user') && JSON.parse(localStorage.getItem('user')).role === 'HOD' ? 
                 <Navigate to="/hod/dashboard" replace /> : 
+               localStorage.getItem('user') && JSON.parse(localStorage.getItem('user')).role === 'Student' ? 
+                <Navigate to="/student/dashboard" replace /> :
                 <Navigate to="/admin/dashboard" replace />
               }
             </ProtectedRoute>

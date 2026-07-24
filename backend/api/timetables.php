@@ -10,10 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config/database.php';
+require_once 'conflict_detector.php';
 
 $db = new Database();
 $conn = $db->getConnection();
 $method = $_SERVER['REQUEST_METHOD'];
+$conflictDetector = new ConflictDetector($conn);
 
 try {
     switch ($method) {
@@ -265,23 +267,59 @@ try {
                 exit;
             }
             
+            // Handle Publish action
+            if (isset($_GET['action']) && $_GET['action'] == 'publish') {
+                $semester = $data->semester ?? 'First Semester';
+                $session = $data->session ?? '2026/2027';
+                
+                $stmt = $conn->prepare("UPDATE timetables SET publish_status = 'Published', published_at = CURRENT_TIMESTAMP WHERE semester = :sem AND session = :ses");
+                if ($stmt->execute([':sem' => $semester, ':ses' => $session])) {
+                    echo json_encode(['success' => true, 'message' => 'Timetable published successfully!']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to publish timetable.']);
+                }
+                exit;
+            }
+
+            // Handle Save Version action
+            if (isset($_GET['action']) && $_GET['action'] == 'save_version') {
+                $version_name = $data->version_name ?? 'Draft Version';
+                $semester = $data->semester ?? 'First Semester';
+                $session = $data->session ?? '2026/2027';
+                
+                // Fetch current timetables
+                $stmt = $conn->prepare("SELECT * FROM timetables WHERE semester = :sem AND session = :ses");
+                $stmt->execute([':sem' => $semester, ':ses' => $session]);
+                $ttData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                $vStmt = $conn->prepare("INSERT INTO timetable_versions (version_name, timetable_data, created_by) VALUES (:vname, :tdata, :uid)");
+                // We're omitting created_by for simplicity unless user auth is hooked up tightly here, 
+                // but let's assume NULL for created_by
+                if ($vStmt->execute([':vname' => $version_name, ':tdata' => json_encode($ttData), ':uid' => null])) {
+                    echo json_encode(['success' => true, 'message' => 'Timetable version saved successfully!']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to save version.']);
+                }
+                exit;
+            }
+                exit;
+            }
+            
             // Basic validation for Manual Add
             if (!empty($data->course_id) && !empty($data->classroom_id) && !empty($data->day_of_week) && !empty($data->start_time) && !empty($data->end_time)) {
                 
-                // Check for overlapping in the same room
-                $checkQuery = "SELECT id FROM timetables 
-                               WHERE classroom_id = :room_id AND day_of_week = :day 
-                               AND ((start_time < :end_time AND end_time > :start_time))";
-                $checkStmt = $conn->prepare($checkQuery);
-                $checkStmt->execute([
-                    ':room_id' => $data->classroom_id,
-                    ':day' => $data->day_of_week,
-                    ':start_time' => $data->start_time,
-                    ':end_time' => $data->end_time
-                ]);
+                $conflicts = $conflictDetector->validateSlot(
+                    $data->course_id, 
+                    $data->classroom_id, 
+                    $data->day_of_week, 
+                    $data->start_time, 
+                    $data->end_time, 
+                    $data->semester ?? 'First Semester', 
+                    $data->session ?? '2026/2027'
+                );
                 
-                if ($checkStmt->rowCount() > 0) {
-                    echo json_encode(['success' => false, 'message' => 'Room double-booking conflict detected!']);
+                if (count($conflicts) > 0) {
+                    echo json_encode(['success' => false, 'message' => 'Conflict detected!', 'conflicts' => $conflicts]);
                     exit;
                 }
 
@@ -314,21 +352,19 @@ try {
             
             if (!empty($data->id) && !empty($data->course_id) && !empty($data->classroom_id) && !empty($data->day_of_week) && !empty($data->start_time) && !empty($data->end_time)) {
                 
-                // Check for overlapping in the same room (excluding this specific slot)
-                $checkQuery = "SELECT id FROM timetables 
-                               WHERE classroom_id = :room_id AND day_of_week = :day AND id != :id
-                               AND ((start_time < :end_time AND end_time > :start_time))";
-                $checkStmt = $conn->prepare($checkQuery);
-                $checkStmt->execute([
-                    ':room_id' => $data->classroom_id,
-                    ':day' => $data->day_of_week,
-                    ':id' => $data->id,
-                    ':start_time' => $data->start_time,
-                    ':end_time' => $data->end_time
-                ]);
+                $conflicts = $conflictDetector->validateSlot(
+                    $data->course_id, 
+                    $data->classroom_id, 
+                    $data->day_of_week, 
+                    $data->start_time, 
+                    $data->end_time, 
+                    $data->semester ?? 'First Semester', 
+                    $data->session ?? '2026/2027',
+                    $data->id
+                );
                 
-                if ($checkStmt->rowCount() > 0) {
-                    echo json_encode(['success' => false, 'message' => 'Room double-booking conflict detected for the new times!']);
+                if (count($conflicts) > 0) {
+                    echo json_encode(['success' => false, 'message' => 'Conflict detected for the new times!', 'conflicts' => $conflicts]);
                     exit;
                 }
 

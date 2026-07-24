@@ -6,7 +6,8 @@ import {
   BookOpen,
   DoorOpen,
   Calendar,
-  Users
+  Users,
+  GraduationCap
 } from 'lucide-react';
 import logoUrl from '../../assets/logo.png';
 import { SettingsContext } from '../../context/SettingsContext';
@@ -45,6 +46,10 @@ const HodSidebar = () => {
           <NavLink to="/hod/lecturers" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <Users className="nav-icon" size={20} />
             Lecturers
+          </NavLink>
+          <NavLink to="/hod/students" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+            <GraduationCap className="nav-icon" size={20} />
+            Students
           </NavLink>
         </div>
 

@@ -67,6 +67,10 @@ const AdminSidebar = () => {
             <Users className="nav-icon" size={20} />
             Manage Users
           </NavLink>
+          <NavLink to="/admin/students" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+            <GraduationCap className="nav-icon" size={20} />
+            Manage Students
+          </NavLink>
           <NavLink to="/admin/courses" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <BookOpen className="nav-icon" size={20} />
             Manage Courses
