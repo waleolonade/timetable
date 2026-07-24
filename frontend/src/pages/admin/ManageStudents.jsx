@@ -65,6 +65,20 @@ const ManageStudents = () => {
   }, []);
 
   useEffect(() => {
+    if (user?.role?.toLowerCase() === 'hod') {
+      setSelectedDept(user.department_id);
+      const dept = departments.find(d => String(d.id) === String(user.department_id));
+      if (dept) {
+        setFormData(prev => ({
+          ...prev, 
+          department_id: user.department_id,
+          programme: prev.programme || dept.department_name
+        }));
+      }
+    }
+  }, [user, departments]);
+
+  useEffect(() => {
     fetchStudents();
   }, [selectedDept, selectedLevel]);
 
@@ -78,7 +92,8 @@ const ManageStudents = () => {
       const res = await axios.post('/api/students.php', payload);
       if (res.data.success) {
         setIsModalOpen(false);
-        setFormData({ first_name: '', last_name: '', matric_no: '', email: '', level: 'ND 1', programme: '', department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept });
+        const dept = departments.find(d => String(d.id) === String(user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept));
+        setFormData({ first_name: '', last_name: '', matric_no: '', email: '', level: 'ND 1', programme: user?.role?.toLowerCase() === 'hod' && dept ? dept.department_name : '', department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept });
         fetchStudents();
       } else {
         setError(res.data.message);
@@ -309,7 +324,11 @@ const ManageStudents = () => {
               {user?.role?.toLowerCase() !== 'hod' && (
                 <div style={{marginTop: '20px'}}>
                   <label style={labelStyle}>Department *</label>
-                  <select style={inputStyle} value={formData.department_id} onChange={e => setFormData({...formData, department_id: e.target.value})} required>
+                  <select style={inputStyle} value={formData.department_id} onChange={(e) => {
+                    const val = e.target.value;
+                    const dept = departments.find(d => String(d.id) === String(val));
+                    setFormData({...formData, department_id: val, programme: dept ? dept.department_name : ''});
+                  }} required>
                     <option value="">-- Select Department --</option>
                     {departments.map(d => <option key={d.id} value={d.id}>{d.department_name}</option>)}
                   </select>
