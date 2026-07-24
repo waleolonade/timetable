@@ -10,7 +10,7 @@ const ManageStudents = () => {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [selectedDept, setSelectedDept] = useState(user?.role === 'HOD' ? user?.department_id : '');
+  const [selectedDept, setSelectedDept] = useState(user?.role?.toLowerCase() === 'hod' ? user?.department_id : '');
   const [selectedLevel, setSelectedLevel] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -23,7 +23,7 @@ const ManageStudents = () => {
     email: '',
     level: '100',
     programme: '',
-    department_id: user?.role === 'HOD' ? user?.department_id : ''
+    department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : ''
   });
   const [error, setError] = useState('');
 
@@ -74,7 +74,7 @@ const ManageStudents = () => {
       const res = await axios.post('/api/students.php', payload);
       if (res.data.success) {
         setIsModalOpen(false);
-        setFormData({ first_name: '', last_name: '', matric_no: '', email: '', level: '100', programme: '', department_id: user?.role === 'HOD' ? user?.department_id : selectedDept });
+        setFormData({ first_name: '', last_name: '', matric_no: '', email: '', level: '100', programme: '', department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept });
         fetchStudents();
       } else {
         setError(res.data.message);
@@ -103,12 +103,12 @@ const ManageStudents = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!selectedDept && user?.role !== 'HOD') {
+    if (!selectedDept && user?.role?.toLowerCase() !== 'hod') {
         alert("Please select a department first before importing.");
         return;
     }
 
-    const deptId = user?.role === 'HOD' ? user?.department_id : selectedDept;
+    const deptId = user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept;
 
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -196,7 +196,7 @@ const ManageStudents = () => {
           </div>
           
           <div style={{ display: 'flex', gap: '15px' }}>
-            {user?.role !== 'HOD' && (
+            {user?.role?.toLowerCase() !== 'hod' && (
               <select className="form-control" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}>
                 <option value="">All Departments</option>
                 {departments.map(d => <option key={d.id} value={d.id}>{d.department_name}</option>)}
@@ -225,7 +225,7 @@ const ManageStudents = () => {
                   <th>Name</th>
                   <th>Level</th>
                   <th>Programme</th>
-                  {user?.role !== 'HOD' && <th>Department</th>}
+                  {user?.role?.toLowerCase() !== 'hod' && <th>Department</th>}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -236,7 +236,7 @@ const ManageStudents = () => {
                     <td>{student.first_name} {student.last_name}</td>
                     <td>{student.level}</td>
                     <td>{student.programme}</td>
-                    {user?.role !== 'HOD' && <td>{student.department_name}</td>}
+                    {user?.role?.toLowerCase() !== 'hod' && <td>{student.department_name}</td>}
                     <td>
                       <button onClick={() => handleDelete(student.user_id)} className="btn btn-sm btn-outline-danger" title="Delete">
                         <Trash2 size={14} />
@@ -245,7 +245,7 @@ const ManageStudents = () => {
                   </tr>
                 ))}
                 {filteredStudents.length === 0 && (
-                  <tr><td colSpan={user?.role !== 'HOD' ? 6 : 5} style={{textAlign: 'center', padding: '20px'}}>No students found.</td></tr>
+                  <tr><td colSpan={user?.role?.toLowerCase() !== 'hod' ? 6 : 5} style={{textAlign: 'center', padding: '20px'}}>No students found.</td></tr>
                 )}
               </tbody>
             </table>
@@ -297,7 +297,7 @@ const ManageStudents = () => {
                 </div>
               </div>
 
-              {user?.role !== 'HOD' && (
+              {user?.role?.toLowerCase() !== 'hod' && (
                 <div style={{marginBottom: '20px'}}>
                   <label>Department</label>
                   <select className="form-control" value={formData.department_id} onChange={e => setFormData({...formData, department_id: e.target.value})} required>
