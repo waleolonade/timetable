@@ -1,61 +1,27 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
+import { SettingsContext } from '../../context/SettingsContext';
+import { Link } from 'react-router-dom';
+import logoUrl from '../../assets/logo.png';
 
 const Header = ({ user, onLogout }) => {
-  const [session, setSession] = useState('2026/2027 Academic Session');
-  const [semester, setSemester] = useState('First Semester');
-  const [isEditingSession, setIsEditingSession] = useState(false);
+  const { settings } = useContext(SettingsContext);
   return (
     <header className="top-header">
       <div className="header-left">
         <div className="institution-branding">
-          {/* Placeholder for Logo */}
-          <div className="logo-placeholder">FCC</div>
+          <img src={settings.institution_logo || logoUrl} alt="Logo" className="sidebar-logo" style={{ width: '40px', height: '40px' }} />
           <div className="branding-text">
-            <h2>FEDERAL CO-OPERATIVE COLLEGE</h2>
+            <h2>{settings.institution_name?.toUpperCase() || 'FEDERAL CO-OPERATIVE COLLEGE'}</h2>
             <p>Examination Timetable Management System</p>
           </div>
         </div>
         <div className="academic-info" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {isEditingSession ? (
-            <div style={{ display: 'flex', gap: '5px', background: '#f8f9fa', padding: '5px', borderRadius: '5px', alignItems: 'center' }}>
-              <input 
-                type="text" 
-                value={session} 
-                onChange={(e) => setSession(e.target.value)} 
-                className="form-control" 
-                style={{ width: '200px', fontSize: '0.85rem', padding: '4px 8px' }} 
-              />
-              <select 
-                value={semester} 
-                onChange={(e) => setSemester(e.target.value)} 
-                className="form-control" 
-                style={{ width: '140px', fontSize: '0.85rem', padding: '4px 8px' }}
-              >
-                <option value="First Semester">First Semester</option>
-                <option value="Second Semester">Second Semester</option>
-                <option value="Summer Semester">Summer Semester</option>
-              </select>
-              <button 
-                onClick={() => setIsEditingSession(false)} 
-                style={{ background: '#0A5C36', color: 'white', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <>
-              <span className="badge">{session}</span>
-              <span className="badge">{semester}</span>
-              {user?.role === 'admin' && (
-                <button 
-                  onClick={() => setIsEditingSession(true)} 
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', opacity: 0.6 }}
-                  title="Edit Active Session"
-                >
-                  ✏️
-                </button>
-              )}
-            </>
+          <span className="badge">{settings.current_session || '2026/2027 Academic Session'}</span>
+          <span className="badge">{settings.current_semester || 'First Semester'}</span>
+          {user?.role === 'admin' && (
+            <Link to="/admin/institution" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', opacity: 0.6, textDecoration: 'none' }} title="Edit Global Settings">
+              ⚙️
+            </Link>
           )}
         </div>
       </div>

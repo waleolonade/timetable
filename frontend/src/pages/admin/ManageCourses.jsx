@@ -181,7 +181,7 @@ const ManageCourses = () => {
               <tbody>
                 {filteredCourses.length > 0 ? filteredCourses.map(c => (
                   <tr key={c.id} style={{borderBottom: '1px solid #eee', transition: 'background 0.2s'}} onMouseOver={e => e.currentTarget.style.background='#fcfcfc'} onMouseOut={e => e.currentTarget.style.background='white'}>
-                    <td style={{padding: '15px', fontWeight: 'bold', color: '#0A5C36'}}>{c.course_code}</td>
+                    <td style={{padding: '15px', fontWeight: 'bold', color: 'var(--primary-color)'}}>{c.course_code}</td>
                     <td style={{padding: '15px', fontWeight: '600', color: '#333'}}>{c.course_name}</td>
                     <td style={{padding: '15px', color: '#555'}}>{c.department_name || <span style={{color: '#aaa', fontStyle: 'italic'}}>Unassigned</span>}</td>
                     <td style={{padding: '15px', textAlign: 'center'}}>{c.level}L</td>
@@ -230,7 +230,7 @@ const ManageCourses = () => {
         <div className="modal-overlay" style={modalStyles.overlay}>
           <div className="modal" style={modalStyles.modal}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, color: '#0A5C36', fontSize: '1.4rem' }}>{editingCourse ? 'Edit Course' : 'Add New Course'}</h3>
+              <h3 style={{ margin: 0, color: 'var(--primary-color)', fontSize: '1.4rem' }}>{editingCourse ? 'Edit Course' : 'Add New Course'}</h3>
               <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888' }}>✖</button>
             </div>
             <form onSubmit={handleSave}>

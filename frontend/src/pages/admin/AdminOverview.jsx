@@ -92,7 +92,7 @@ const AdminOverview = () => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="exams" fill="#0A5C36" />
+                <Bar dataKey="exams" fill="var(--primary-color)" />
               </BarChart>
             </ResponsiveContainer>
           </div>

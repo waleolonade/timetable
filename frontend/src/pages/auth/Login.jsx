@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { SettingsContext } from '../../context/SettingsContext';
 
 const API_URL = '/api';
 
 const Login = ({ setAuth }) => {
+  const { settings } = useContext(SettingsContext);
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +36,11 @@ const Login = ({ setAuth }) => {
         
         // Update auth state in App.jsx
         setAuth(true);
-        navigate('/admin/dashboard');
+        if (response.data.user.role === 'hod') {
+          navigate('/hod/dashboard');
+        } else {
+          navigate('/admin/dashboard');
+        }
       } else {
         setError(response.data.error || 'Login failed. Please check your credentials.');
       }
@@ -50,9 +56,15 @@ const Login = ({ setAuth }) => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <span className="school-badge">Federal Co-operative College</span>
-          <h2>Timetable Management</h2>
-          <p>Sign in to your account</p>
+          {settings.institution_logo ? (
+            <img src={settings.institution_logo} alt="Logo" style={{ width: '80px', height: '80px', objectFit: 'contain', marginBottom: '15px' }} />
+          ) : (
+            <div className="school-badge">
+              {settings.institution_name?.toUpperCase() || 'FEDERAL CO-OPERATIVE COLLEGE'}
+            </div>
+          )}
+          <h2>{settings.institution_name || 'Federal Co-operative College'}</h2>
+          <p>{settings.institution_motto || 'Examination Timetable Management System'}</p>
         </div>
 
         {error && <div className="error-alert">{error}</div>}

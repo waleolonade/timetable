@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 
 const ManageFaculties = () => {
@@ -6,8 +6,10 @@ const ManageFaculties = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState(null);
   const [facultyName, setFacultyName] = useState('');
+  const fileInputRef = useRef(null);
 
   const fetchFaculties = async () => {
     try {
@@ -65,6 +67,75 @@ const ManageFaculties = () => {
     }
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const text = event.target.result;
+        // Simple CSV parser assuming first column is Name
+        const rows = text.split(/\r?\n/);
+        const names = [];
+        
+        for (let i = 0; i < rows.length; i++) {
+          let val = rows[i].split(',')[0].replace(/['"]/g, '').trim();
+          if (val && val.toLowerCase() !== 'name' && val.toLowerCase() !== 'faculty name') {
+            names.push(val);
+          }
+        }
+
+        if (names.length === 0) {
+          alert('No valid names found in CSV.');
+          return;
+        }
+
+        setLoading(true);
+        const res = await axios.post('/api/faculties.php', { bulk: true, names });
+        if (res.data.success) {
+          alert(res.data.message);
+          setIsImportModalOpen(false);
+          fetchFaculties();
+        } else {
+          alert(res.data.message);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to process CSV file.');
+        setLoading(false);
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input
+    e.target.value = null;
+  };
+
+  const handleExportCSV = () => {
+    if (faculties.length === 0) {
+      alert("No faculties to export.");
+      return;
+    }
+    const headers = ['ID', 'Faculty Name', 'Total Departments', 'Status', 'Date Created'];
+    const rows = faculties.map(f => [
+      f.id,
+      `"${f.name}"`,
+      f.total_departments || 0,
+      f.is_active ? 'Active' : 'Disabled',
+      f.created_at
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Faculties_Export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const openModal = (faculty = null) => {
     if (faculty) {
       setEditingFaculty(faculty);
@@ -91,9 +162,17 @@ const ManageFaculties = () => {
           <h1>Faculty Management</h1>
           <p>Add, edit, and manage institutional faculties.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => openModal()}>
-          <span style={{marginRight: '5px'}}>+</span> Add New Faculty
-        </button>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center' }} title="Export to CSV">
+            <span style={{marginRight: '5px'}}>⬇️</span> Export
+          </button>
+          <button className="btn btn-secondary" onClick={() => setIsImportModalOpen(true)} style={{ display: 'flex', alignItems: 'center' }} title="Import from CSV">
+            <span style={{marginRight: '5px'}}>⬆️</span> Import
+          </button>
+          <button className="btn btn-primary" onClick={() => openModal()} style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{marginRight: '5px'}}>+</span> Add New
+          </button>
+        </div>
       </div>
 
       {/* Summary Widgets */}
@@ -194,7 +273,7 @@ const ManageFaculties = () => {
         <div className="modal-overlay" style={modalStyles.overlay}>
           <div className="modal" style={modalStyles.modal}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, color: '#0A5C36', fontSize: '1.4rem' }}>{editingFaculty ? 'Edit Faculty' : 'Add New Faculty'}</h3>
+              <h3 style={{ margin: 0, color: 'var(--primary-color)', fontSize: '1.4rem' }}>{editingFaculty ? 'Edit Faculty' : 'Add New Faculty'}</h3>
               <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888' }}>✖</button>
             </div>
             <form onSubmit={handleSave}>
@@ -215,6 +294,45 @@ const ManageFaculties = () => {
                 <button type="submit" className="btn btn-primary" style={{padding: '10px 20px'}}>Save Faculty</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isImportModalOpen && (
+        <div className="modal-overlay" style={modalStyles.overlay}>
+          <div className="modal" style={{...modalStyles.modal, width: '450px'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: 'var(--primary-color)', fontSize: '1.4rem' }}>Import Faculties</h3>
+              <button onClick={() => setIsImportModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888' }}>✖</button>
+            </div>
+            
+            <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px', borderLeft: '4px solid var(--primary-color)' }}>
+              <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>💡 CSV Upload Guide</h4>
+              <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#555', lineHeight: '1.5' }}>
+                To upload multiple faculties at once, prepare a standard <strong>.csv</strong> file. 
+                Ensure that the <strong>Faculty Names</strong> are listed in the very first column.
+              </p>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#777' }}>
+                <em>Note: Header rows (like "Name") and duplicate entries will be automatically ignored.</em>
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+              <input 
+                type="file" 
+                accept=".csv" 
+                style={{ display: 'none' }} 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+              />
+              <button 
+                className="btn btn-primary" 
+                onClick={() => fileInputRef.current.click()} 
+                style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.1rem' }}
+              >
+                <span style={{marginRight: '8px'}}>📂</span> Select CSV File to Upload
+              </button>
+            </div>
           </div>
         </div>
       )}

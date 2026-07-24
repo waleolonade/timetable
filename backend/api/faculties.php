@@ -32,9 +32,35 @@ try {
             break;
 
         case 'POST':
-            // Create new faculty
             $data = json_decode(file_get_contents("php://input"));
-            if (!empty($data->name)) {
+            
+            // Bulk Create
+            if (isset($data->bulk) && $data->bulk === true && !empty($data->names)) {
+                try {
+                    $conn->beginTransaction();
+                    $stmt = $conn->prepare("INSERT INTO faculties (name, is_active) VALUES (:name, 1)");
+                    $count = 0;
+                    foreach ($data->names as $name) {
+                        $name = trim($name);
+                        if (!empty($name)) {
+                            // Basic check if exists (optional but good for bulk)
+                            $check = $conn->prepare("SELECT id FROM faculties WHERE name = :name");
+                            $check->execute([':name' => $name]);
+                            if ($check->rowCount() == 0) {
+                                $stmt->execute([':name' => $name]);
+                                $count++;
+                            }
+                        }
+                    }
+                    $conn->commit();
+                    echo json_encode(['success' => true, 'message' => "$count faculties created successfully from CSV."]);
+                } catch (Exception $e) {
+                    $conn->rollBack();
+                    echo json_encode(['success' => false, 'message' => 'Bulk upload failed: ' . $e->getMessage()]);
+                }
+            } 
+            // Create single new faculty
+            elseif (!empty($data->name)) {
                 $stmt = $conn->prepare("INSERT INTO faculties (name, is_active) VALUES (:name, 1)");
                 $stmt->bindParam(':name', $data->name);
                 if ($stmt->execute()) {
@@ -43,7 +69,7 @@ try {
                     echo json_encode(['success' => false, 'message' => 'Failed to create faculty.']);
                 }
             } else {
-                echo json_encode(['success' => false, 'message' => 'Faculty name is required.']);
+                echo json_encode(['success' => false, 'message' => 'Faculty name or data is required.']);
             }
             break;
 

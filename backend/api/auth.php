@@ -28,12 +28,17 @@ function login($db, $data) {
         return;
     }
     
-    $query = "SELECT id, username, password, role FROM users WHERE username = ?";
+    $query = "SELECT id, username, password, role, is_active, department_id FROM users WHERE username = ?";
     $stmt = $db->prepare($query);
     $stmt->execute([$username]);
     
     if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         if (password_verify($password, $row['password'])) {
+            if ($row['is_active'] == 0) {
+                echo json_encode(['success' => false, 'error' => 'Account is locked or disabled. Please contact the administrator.']);
+                return;
+            }
+
             // Success - Generate a simple pseudo-token for this demo
             $token = bin2hex(random_bytes(16));
             
@@ -43,7 +48,8 @@ function login($db, $data) {
                 'user' => [
                     'id' => $row['id'],
                     'username' => $row['username'],
-                    'role' => $row['role']
+                    'role' => $row['role'],
+                    'department_id' => $row['department_id']
                 ]
             ]);
         } else {

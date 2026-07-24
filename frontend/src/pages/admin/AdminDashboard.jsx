@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/admin/AdminSidebar';
 import Header from '../../components/shared/Header';
+import Footer from '../../components/shared/Footer';
 
 const API_URL = '/api';
 
@@ -40,6 +41,8 @@ const AdminDashboard = ({ setAuth }) => {
         <div className="dashboard-body">
           <Outlet />
         </div>
+        
+        <Footer />
       </div>
     </div>
   );

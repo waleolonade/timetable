@@ -19,7 +19,7 @@ body {
 /* Sidebar Styles */
 .sidebar {
   width: 280px;
-  background-color: #0A5C36; /* Solid Dark Green */
+  background-color: var(--primary-color, #0A5C36); /* Dynamic Solid Color */
   color: white;
   display: flex;
   flex-direction: column;
@@ -36,26 +36,17 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 40px;
-  padding-bottom: 20px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.logo-placeholder {
-  background: white;
-  color: #0A5C36;
-  font-weight: 800;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  font-size: 1.2rem;
-}
-
-.logo-placeholder.lg {
-  padding: 10px 15px;
-  font-size: 1.5rem;
+.sidebar-logo {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  border-radius: 50%; /* Make it perfectly circular */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 .sidebar-title {
@@ -103,8 +94,33 @@ body {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   flex-grow: 1;
+}
+
+.nav-group-title {
+  font-size: 0.75rem;
+  color: #A2E0C1;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  padding-left: 15px;
+  font-weight: bold;
+}
+
+.nav-group-title:first-child {
+  margin-top: 10px; /* Special case for first group */
+}
+
+.nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Ensure consistent spacing between groups */
+.nav-group-items:last-child {
+  margin-bottom: 16px;
 }
 
 .nav-item {
@@ -189,7 +205,7 @@ body {
 .branding-text h2 {
   margin: 0;
   font-size: 1.2rem;
-  color: #0A5C36;
+  color: var(--primary-color, #0A5C36);
   font-weight: 700;
 }
 
@@ -205,8 +221,8 @@ body {
 }
 
 .badge {
-  background: #e8f5e9;
-  color: #2E8B57;
+  background: var(--session-badge-color, #e8f5e9);
+  color: var(--primary-color, #2E8B57);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -249,7 +265,7 @@ body {
 .user-avatar-small {
   width: 35px;
   height: 35px;
-  background: #0A5C36;
+  background: var(--primary-color, #0A5C36);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -468,7 +484,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #0A5C36; /* Solid Dark Green */
+  background-color: var(--primary-color, #0A5C36);
 }
 
 .login-card {
@@ -500,7 +516,7 @@ body {
 .school-badge {
   display: inline-block;
   background: #e8f5e9;
-  color: #0A5C36;
+  color: var(--primary-color, #0A5C36);
   padding: 5px 15px;
   border-radius: 20px;
   font-weight: bold;
@@ -549,12 +565,12 @@ body {
 }
 
 .btn-primary {
-  background-color: #0A5C36; /* Solid Dark Green */
+  background-color: var(--primary-color, #0A5C36);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #074026;
+  background-color: var(--primary-hover, #074026);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(10, 92, 54, 0.3);
 }
@@ -928,4 +944,56 @@ body {
     padding: 20px;
     margin: 10px;
   }
+}
+
+/* Footer Styles */
+.admin-footer {
+  margin-top: auto; /* Pushes it to the bottom if content is short */
+  padding: 20px 30px;
+  background: white;
+  border-top: 1px solid #eaeaea;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footer-content p {
+  margin: 0;
+}
+
+.footer-content strong {
+  color: var(--primary-color, #0A5C36);
+}
+
+.footer-links {
+  display: flex;
+  gap: 15px;
+}
+
+.footer-links a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--primary-color, #0A5C36);
+}
+
+/* Timetable Grid Styles */
+.timetable-grid tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.timetable-slot:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+  transition: all 0.2s ease;
 }

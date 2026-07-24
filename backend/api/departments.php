@@ -20,13 +20,13 @@ try {
         case 'GET':
             // Fetch all departments with faculty name and total courses count
             $query = "
-                SELECT d.id, d.name, d.faculty_id, d.is_active, d.created_at, 
+                SELECT d.id, d.name, d.faculty_id, d.is_active, d.created_at, d.theme_color, d.logo_url,
                        f.name as faculty_name,
                        COUNT(c.id) as total_courses
                 FROM departments d
                 LEFT JOIN faculties f ON d.faculty_id = f.id
                 LEFT JOIN courses c ON d.name = c.department
-                GROUP BY d.id, d.name, d.faculty_id, d.is_active, d.created_at, f.name
+                GROUP BY d.id, d.name, d.faculty_id, d.is_active, d.created_at, d.theme_color, d.logo_url, f.name
                 ORDER BY d.created_at DESC
             ";
             $stmt = $conn->query($query);
@@ -38,9 +38,14 @@ try {
             // Create new department
             $data = json_decode(file_get_contents("php://input"));
             if (!empty($data->name) && !empty($data->faculty_id)) {
-                $stmt = $conn->prepare("INSERT INTO departments (faculty_id, name, is_active) VALUES (:faculty_id, :name, 1)");
+                $stmt = $conn->prepare("INSERT INTO departments (faculty_id, name, is_active, theme_color, logo_url) VALUES (:faculty_id, :name, 1, :theme_color, :logo_url)");
                 $stmt->bindParam(':faculty_id', $data->faculty_id);
                 $stmt->bindParam(':name', $data->name);
+                
+                $theme_color = isset($data->theme_color) ? $data->theme_color : '#0f172a';
+                $logo_url = isset($data->logo_url) ? $data->logo_url : null;
+                $stmt->bindParam(':theme_color', $theme_color);
+                $stmt->bindParam(':logo_url', $logo_url);
                 if ($stmt->execute()) {
                     echo json_encode(['success' => true, 'message' => 'Department created successfully.']);
                 } else {
@@ -57,9 +62,13 @@ try {
             if (!empty($data->id)) {
                 if (isset($data->name) && isset($data->faculty_id)) {
                     // Update name and faculty_id
-                    $stmt = $conn->prepare("UPDATE departments SET name = :name, faculty_id = :faculty_id WHERE id = :id");
+                    $stmt = $conn->prepare("UPDATE departments SET name = :name, faculty_id = :faculty_id, theme_color = :theme_color, logo_url = :logo_url WHERE id = :id");
                     $stmt->bindParam(':name', $data->name);
                     $stmt->bindParam(':faculty_id', $data->faculty_id);
+                    $theme_color = isset($data->theme_color) ? $data->theme_color : '#0f172a';
+                    $logo_url = isset($data->logo_url) ? $data->logo_url : null;
+                    $stmt->bindParam(':theme_color', $theme_color);
+                    $stmt->bindParam(':logo_url', $logo_url);
                     $stmt->bindParam(':id', $data->id);
                 } elseif (isset($data->is_active)) {
                     // Update status

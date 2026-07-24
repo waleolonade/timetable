@@ -11,6 +11,13 @@ const ManageDepartments = () => {
   const [editingDept, setEditingDept] = useState(null);
   const [deptName, setDeptName] = useState('');
   const [facultyId, setFacultyId] = useState('');
+  const [themeColor, setThemeColor] = useState({
+    primary: '#3b82f6',
+    sidebar: '#0f172a',
+    accent: '#f59e0b'
+  });
+  const [logoUrl, setLogoUrl] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -39,16 +46,32 @@ const ManageDepartments = () => {
     if (!deptName.trim() || !facultyId) return;
 
     try {
+      const themeStr = JSON.stringify(themeColor);
       if (editingDept) {
-        await axios.put('/api/departments.php', { id: editingDept.id, name: deptName, faculty_id: facultyId });
+        await axios.put('/api/departments.php', { 
+          id: editingDept.id, name: deptName, faculty_id: facultyId,
+          theme_color: themeStr, logo_url: logoUrl
+        });
       } else {
-        await axios.post('/api/departments.php', { name: deptName, faculty_id: facultyId });
+        await axios.post('/api/departments.php', { 
+          name: deptName, faculty_id: facultyId,
+          theme_color: themeStr, logo_url: logoUrl
+        });
       }
       setIsModalOpen(false);
       setDeptName('');
       setFacultyId('');
+      setThemeColor({ primary: '#3b82f6', sidebar: '#0f172a', accent: '#f59e0b' });
+      setLogoUrl('');
       setEditingDept(null);
       fetchData();
+      
+      // Show success popup ring/toast
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+      
     } catch (err) {
       console.error(err);
     }
@@ -79,12 +102,37 @@ const ManageDepartments = () => {
       setEditingDept(dept);
       setDeptName(dept.name);
       setFacultyId(dept.faculty_id);
+      
+      // Safe parse theme_color
+      let tc = { primary: '#3b82f6', sidebar: '#0f172a', accent: '#f59e0b' };
+      if (dept.theme_color) {
+        if (dept.theme_color.startsWith('{')) {
+          try { tc = JSON.parse(dept.theme_color); } catch(e){}
+        } else {
+          tc.primary = dept.theme_color;
+        }
+      }
+      setThemeColor(tc);
+      setLogoUrl(dept.logo_url || '');
     } else {
       setEditingDept(null);
       setDeptName('');
       setFacultyId('');
+      setThemeColor({ primary: '#3b82f6', sidebar: '#0f172a', accent: '#f59e0b' });
+      setLogoUrl('');
     }
     setIsModalOpen(true);
+  };
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const filteredDepts = useMemo(() => {
@@ -158,7 +206,16 @@ const ManageDepartments = () => {
                 {filteredDepts.length > 0 ? filteredDepts.map(d => (
                   <tr key={d.id} style={{borderBottom: '1px solid #eee', transition: 'background 0.2s'}} onMouseOver={e => e.currentTarget.style.background='#fcfcfc'} onMouseOut={e => e.currentTarget.style.background='white'}>
                     <td style={{padding: '15px', color: '#777'}}>#{d.id}</td>
-                    <td style={{padding: '15px', fontWeight: '600', color: '#333'}}>{d.name}</td>
+                    <td style={{padding: '15px', fontWeight: '600'}}>
+                      <div style={{display: 'flex', alignItems: 'center'}}>
+                        {d.logo_url && <img src={d.logo_url} alt="logo" style={{width: 24, height: 24, borderRadius: '50%', marginRight: 8, objectFit: 'cover', border: '1px solid #ddd'}} />}
+                        <span style={{
+                          color: d.theme_color && d.theme_color.startsWith('{') 
+                            ? JSON.parse(d.theme_color).primary 
+                            : (d.theme_color || '#333')
+                        }}>{d.name}</span>
+                      </div>
+                    </td>
                     <td style={{padding: '15px', color: '#555'}}>{d.faculty_name || <span style={{color: '#aaa', fontStyle: 'italic'}}>Unassigned</span>}</td>
                     <td style={{padding: '15px', textAlign: 'center'}}>
                       <span style={{ background: '#f0f0f0', padding: '3px 8px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 'bold' }}>
@@ -210,7 +267,7 @@ const ManageDepartments = () => {
         <div className="modal-overlay" style={modalStyles.overlay}>
           <div className="modal" style={modalStyles.modal}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, color: '#0A5C36', fontSize: '1.4rem' }}>{editingDept ? 'Edit Department' : 'Add New Department'}</h3>
+              <h3 style={{ margin: 0, color: 'var(--primary-color)', fontSize: '1.4rem' }}>{editingDept ? 'Edit Department' : 'Add New Department'}</h3>
               <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#888' }}>✖</button>
             </div>
             <form onSubmit={handleSave}>
@@ -241,6 +298,64 @@ const ManageDepartments = () => {
                   ))}
                 </select>
               </div>
+              <div className="form-group" style={{marginBottom: 20}}>
+                <label style={{display: 'block', marginBottom: '10px', fontWeight: '600', color: '#444'}}>Theme Configuration</label>
+                <div style={{display: 'flex', gap: '15px', background: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0'}}>
+                  <div style={{flex: 1}}>
+                    <label style={{display: 'block', fontSize: '0.85rem', marginBottom: '5px', color: '#64748b'}}>Primary Color</label>
+                    <input 
+                      type="color" 
+                      value={themeColor.primary} 
+                      onChange={(e) => setThemeColor({...themeColor, primary: e.target.value})} 
+                      style={{width: '100%', height: '35px', padding: '0', cursor: 'pointer', border: 'none', borderRadius: '4px'}}
+                    />
+                  </div>
+                  <div style={{flex: 1}}>
+                    <label style={{display: 'block', fontSize: '0.85rem', marginBottom: '5px', color: '#64748b'}}>Sidebar Color</label>
+                    <input 
+                      type="color" 
+                      value={themeColor.sidebar} 
+                      onChange={(e) => setThemeColor({...themeColor, sidebar: e.target.value})} 
+                      style={{width: '100%', height: '35px', padding: '0', cursor: 'pointer', border: 'none', borderRadius: '4px'}}
+                    />
+                  </div>
+                  <div style={{flex: 1}}>
+                    <label style={{display: 'block', fontSize: '0.85rem', marginBottom: '5px', color: '#64748b'}}>Accent Color</label>
+                    <input 
+                      type="color" 
+                      value={themeColor.accent} 
+                      onChange={(e) => setThemeColor({...themeColor, accent: e.target.value})} 
+                      style={{width: '100%', height: '35px', padding: '0', cursor: 'pointer', border: 'none', borderRadius: '4px'}}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group" style={{marginBottom: 25}}>
+                <label style={{display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444'}}>Department Logo</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  style={{width: '100%', fontSize: '0.9rem'}}
+                />
+                  {logoUrl && (
+                    <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center' }}>
+                      <img 
+                        src={logoUrl} 
+                        alt="Preview" 
+                        style={{
+                          height: '80px', 
+                          width: '80px', 
+                          borderRadius: '50%', 
+                          objectFit: 'cover',
+                          border: '3px solid #3b82f6',
+                          boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)'
+                        }} 
+                      />
+                    </div>
+                  )}
+                </div>
               <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
                 <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)} style={{padding: '10px 20px'}}>Cancel</button>
                 <button type="submit" className="btn btn-primary" style={{padding: '10px 20px'}}>Save Department</button>
@@ -249,6 +364,44 @@ const ManageDepartments = () => {
           </div>
         </div>
       )}
+
+      {/* Success Notification Popup */}
+      {saveSuccess && (
+        <div style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          background: 'white',
+          padding: '15px 25px',
+          borderRadius: '30px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '15px',
+          zIndex: 9999,
+          animation: 'slideUp 0.3s ease-out'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            border: '3px solid #10b981',
+            borderTopColor: 'transparent',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <span style={{color: '#10b981', fontWeight: 'bold'}}>Department Saved Successfully!</span>
+        </div>
+      )}
+      
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes spin {
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
