@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { SettingsContext } from '../../context/SettingsContext';
 import StudentSidebar from '../../components/student/StudentSidebar';
-import TopHeader from '../../components/common/TopHeader';
+import Header from '../../components/shared/Header';
 import axios from 'axios';
 import { CalendarDays, BookOpen, Clock } from 'lucide-react';
 
@@ -62,7 +62,7 @@ const StudentDashboard = ({ setAuth }) => {
       <StudentSidebar setAuth={setAuth} />
       
       <div className="main-content">
-        <TopHeader user={user} title="Student Dashboard" />
+        <Header user={user} onLogout={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setAuth(false); }} />
         
         <div className="dashboard-content">
           <div className="welcome-banner" style={{ background: 'linear-gradient(135deg, #0288d1 0%, #03a9f4 100%)', color: 'white', padding: '30px', borderRadius: '12px', marginBottom: '30px' }}>
