@@ -25,7 +25,7 @@ const ManageStudents = () => {
     last_name: '',
     matric_no: '',
     email: '',
-    level: '100',
+    level: 'ND 1',
     programme: '',
     department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : ''
   });
@@ -78,7 +78,7 @@ const ManageStudents = () => {
       const res = await axios.post('/api/students.php', payload);
       if (res.data.success) {
         setIsModalOpen(false);
-        setFormData({ first_name: '', last_name: '', matric_no: '', email: '', level: '100', programme: '', department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept });
+        setFormData({ first_name: '', last_name: '', matric_no: '', email: '', level: 'ND 1', programme: '', department_id: user?.role?.toLowerCase() === 'hod' ? user?.department_id : selectedDept });
         fetchStudents();
       } else {
         setError(res.data.message);
@@ -165,55 +165,53 @@ const ManageStudents = () => {
   );
 
   return (
-    <div className="manage-students">
-      <div className="content-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="manage-students fade-in" style={{padding: '20px', color: '#2c3e50'}}>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
         <div>
-          <h1>Student Management</h1>
-          <p>Manage students, bulk upload from CSV, and filter by level.</p>
+          <h1 style={{fontSize: '1.8rem', color: '#1a252f', margin: '0 0 5px 0', fontWeight: 700}}>Student Management</h1>
+          <p style={{color: '#64748b', margin: 0}}>Manage students, bulk upload from CSV, and filter by level.</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <label className="btn btn-secondary" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <Upload size={16} style={{marginRight: '5px'}}/> Bulk Import
+        <div style={{display: 'flex', gap: '10px'}}>
+          <label className="btn-premium outline" style={{background: 'white', border: '1px solid #cbd5e1', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <Upload size={18} /> Bulk Import
             <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleBulkUpload} />
           </label>
-          <button className="btn btn-secondary" onClick={exportCSV} style={{ display: 'flex', alignItems: 'center' }}>
-            <Download size={16} style={{marginRight: '5px'}}/> Export
+          <button className="btn-premium outline" onClick={exportCSV} style={{background: 'white', border: '1px solid #cbd5e1', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <Download size={18} /> Export
           </button>
-          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center' }}>
-            <Plus size={16} style={{marginRight: '5px'}}/> Add Student
+          <button className="btn-premium primary" onClick={() => setIsModalOpen(true)} style={{background: '#0f172a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold'}}>
+            <Plus size={18} /> Add Student
           </button>
         </div>
       </div>
 
-      <div className="card dashboard-card">
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
-            <Search size={18} style={{ position: 'absolute', left: '10px', top: '10px', color: '#888' }} />
+      <div className="premium-card" style={{background: 'white', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0', overflow: 'hidden'}}>
+        <div className="card-toolbar" style={{padding: '20px', borderBottom: '1px solid #f1f5f9', background: '#fafbfc', display: 'flex', gap: '15px'}}>
+          <div className="search-wrapper" style={{position: 'relative', flex: 1, maxWidth: '400px'}}>
+            <Search size={18} style={{position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8'}} />
             <input 
               type="text" 
-              className="form-control" 
               placeholder="Search by name or matric no..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '35px' }}
+              style={{width: '100%', padding: '10px 10px 10px 38px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box'}}
             />
           </div>
           
           <div style={{ display: 'flex', gap: '15px' }}>
             {user?.role?.toLowerCase() !== 'hod' && (
-              <select className="form-control" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}>
+              <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} style={{padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1'}}>
                 <option value="">All Departments</option>
                 {departments.map(d => <option key={d.id} value={d.id}>{d.department_name}</option>)}
               </select>
             )}
             
-            <select className="form-control" value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)}>
+            <select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)} style={{padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1'}}>
               <option value="">All Levels</option>
-              <option value="100">100 Level</option>
-              <option value="200">200 Level</option>
-              <option value="300">300 Level</option>
-              <option value="400">400 Level</option>
-              <option value="500">500 Level</option>
+              <option value="ND 1">ND 1</option>
+              <option value="ND 2">ND 2</option>
+              <option value="HND 1">HND 1</option>
+              <option value="HND 2">HND 2</option>
             </select>
           </div>
         </div>
@@ -222,34 +220,42 @@ const ManageStudents = () => {
           <div style={{ padding: '30px', textAlign: 'center' }}>Loading...</div>
         ) : (
           <div className="table-responsive">
-            <table className="table table-striped table-hover">
+            <table className="premium-table" style={{width: '100%', borderCollapse: 'collapse'}}>
               <thead>
                 <tr>
-                  <th>Matric No</th>
-                  <th>Name</th>
-                  <th>Level</th>
-                  <th>Programme</th>
-                  {user?.role?.toLowerCase() !== 'hod' && <th>Department</th>}
-                  <th>Actions</th>
+                  <th style={thStyle}>Matric No</th>
+                  <th style={thStyle}>Name</th>
+                  <th style={thStyle}>Level</th>
+                  <th style={thStyle}>Programme</th>
+                  {user?.role?.toLowerCase() !== 'hod' && <th style={thStyle}>Department</th>}
+                  <th style={{...thStyle, textAlign: 'right'}}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredStudents.map(student => (
-                  <tr key={student.id}>
-                    <td><strong>{student.matric_no}</strong></td>
-                    <td>{student.first_name} {student.last_name}</td>
-                    <td>{student.level}</td>
-                    <td>{student.programme}</td>
-                    {user?.role?.toLowerCase() !== 'hod' && <td>{student.department_name}</td>}
-                    <td>
-                      <button onClick={() => handleDelete(student.user_id)} className="btn btn-sm btn-outline-danger" title="Delete">
-                        <Trash2 size={14} />
-                      </button>
+                  <tr key={student.id} style={{borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s'}}>
+                    <td style={tdStyle}>
+                      <span style={{fontWeight: 700, color: '#0f172a'}}>{student.matric_no}</span>
+                    </td>
+                    <td style={tdStyle}><span style={{fontWeight: 500, color: '#334155'}}>{student.first_name} {student.last_name}</span></td>
+                    <td style={tdStyle}>
+                      <span style={{background: '#e0e7ff', color: '#3730a3', padding: '4px 8px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600}}>
+                        {student.level}
+                      </span>
+                    </td>
+                    <td style={tdStyle}>{student.programme}</td>
+                    {user?.role?.toLowerCase() !== 'hod' && <td style={tdStyle}>{student.department_name}</td>}
+                    <td style={{...tdStyle, textAlign: 'right'}}>
+                      <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
+                        <button onClick={() => handleDelete(student.user_id)} style={actionBtnStyle} title="Delete">
+                          <Trash2 size={16} color="#ef4444" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
                 {filteredStudents.length === 0 && (
-                  <tr><td colSpan={user?.role?.toLowerCase() !== 'hod' ? 6 : 5} style={{textAlign: 'center', padding: '20px'}}>No students found.</td></tr>
+                  <tr><td colSpan={user?.role?.toLowerCase() !== 'hod' ? 6 : 5} style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>No students found.</td></tr>
                 )}
               </tbody>
             </table>
@@ -288,11 +294,10 @@ const ManageStudents = () => {
                 <div style={{flex: 1}}>
                   <label>Level</label>
                   <select className="form-control" value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})} required>
-                    <option value="100">100</option>
-                    <option value="200">200</option>
-                    <option value="300">300</option>
-                    <option value="400">400</option>
-                    <option value="500">500</option>
+                    <option value="ND 1">ND 1</option>
+                    <option value="ND 2">ND 2</option>
+                    <option value="HND 1">HND 1</option>
+                    <option value="HND 2">HND 2</option>
                   </select>
                 </div>
                 <div style={{flex: 1}}>
@@ -324,9 +329,13 @@ const ManageStudents = () => {
 };
 
 const styles = {
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: 'white', padding: '30px', borderRadius: '12px', width: '450px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' },
+  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modal: { background: 'white', padding: '30px', borderRadius: '16px', width: '450px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
   closeBtn: { background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#888' }
 };
+
+const thStyle = { padding: '15px 20px', textAlign: 'left', fontWeight: '600', color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e2e8f0' };
+const tdStyle = { padding: '15px 20px', borderBottom: '1px solid #f1f5f9', color: '#334155', fontSize: '0.95rem' };
+const actionBtnStyle = { background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' };
 
 export default ManageStudents;

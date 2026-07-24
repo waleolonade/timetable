@@ -159,7 +159,7 @@ const ManageGeneralCourses = () => {
     setCourseCode('');
     setCourseName('');
     setSemester('1');
-    setLevel('100');
+    setLevel('ND 1');
     setCreditUnit('2');
     setDuration('150');
     setCapacity('0');
@@ -174,7 +174,7 @@ const ManageGeneralCourses = () => {
       setCourseCode(crs.course_code);
       setCourseName(crs.course_name);
       setSemester(crs.semester || '1');
-      setLevel(crs.level || '100');
+      setLevel(crs.level || 'ND 1');
       setCreditUnit(crs.credit_unit || '2');
       setDuration(crs.duration || '150');
       setCapacity(crs.student_capacity || '0');
@@ -347,7 +347,7 @@ const ManageGeneralCourses = () => {
                 </div>
                 <div className="form-group" style={{flex: 1}}>
                   <label style={modalStyles.label}>Level</label>
-                  <input type="text" className="form-control" value={level} onChange={(e) => setLevel(e.target.value)} placeholder="e.g. ND1, 100" style={modalStyles.input} />
+                  <input type="text" className="form-control" value={level} onChange={(e) => setLevel(e.target.value)} placeholder="e.g. ND 1, HND 1" style={modalStyles.input} />
                 </div>
                 <div className="form-group" style={{flex: 1}}>
                   <label style={modalStyles.label}>Credits</label>
@@ -428,7 +428,7 @@ const ManageGeneralCourses = () => {
                 <li>Course Title (e.g. Use of English)</li>
                 <li>Credit Unit (e.g. 2)</li>
                 <li>Semester (1 or 2)</li>
-                <li>Level (e.g. 100)</li>
+                <li>Level (e.g. ND 1)</li>
                 <li>Duration in Mins (e.g. 150)</li>
                 <li>Capacity (0 for unlimited)</li>
                 <li>Format (Written, CBT, Practical)</li>

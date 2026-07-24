@@ -91,7 +91,7 @@ const ManageCourses = () => {
     setCourseName('');
     setDepartmentId('');
     setSemester('1');
-    setLevel('100');
+    setLevel('ND 1');
     setCreditUnit('2');
   };
 
@@ -102,7 +102,7 @@ const ManageCourses = () => {
       setCourseName(crs.course_name);
       setDepartmentId(crs.department_id);
       setSemester(crs.semester || '1');
-      setLevel(crs.level || '100');
+      setLevel(crs.level || 'ND 1');
       setCreditUnit(crs.credit_unit || '2');
     } else {
       resetForm();
@@ -184,7 +184,7 @@ const ManageCourses = () => {
                     <td style={{padding: '15px', fontWeight: 'bold', color: 'var(--primary-color)'}}>{c.course_code}</td>
                     <td style={{padding: '15px', fontWeight: '600', color: '#333'}}>{c.course_name}</td>
                     <td style={{padding: '15px', color: '#555'}}>{c.department_name || <span style={{color: '#aaa', fontStyle: 'italic'}}>Unassigned</span>}</td>
-                    <td style={{padding: '15px', textAlign: 'center'}}>{c.level}L</td>
+                    <td style={{padding: '15px', textAlign: 'center'}}>{c.level}</td>
                     <td style={{padding: '15px', textAlign: 'center'}}>{c.credit_unit}</td>
                     <td style={{padding: '15px'}}>
                       <span style={{
@@ -266,15 +266,10 @@ const ManageCourses = () => {
                 <div className="form-group" style={{flex: 1}}>
                   <label style={modalStyles.label}>Level</label>
                   <select className="form-control" value={level} onChange={(e) => setLevel(e.target.value)} style={modalStyles.input}>
-                    <option value="100">100 Level</option>
-                    <option value="200">200 Level</option>
-                    <option value="300">300 Level</option>
-                    <option value="400">400 Level</option>
-                    <option value="500">500 Level</option>
-                    <option value="ND1">ND 1</option>
-                    <option value="ND2">ND 2</option>
-                    <option value="HND1">HND 1</option>
-                    <option value="HND2">HND 2</option>
+                    <option value="ND 1">ND 1</option>
+                    <option value="ND 2">ND 2</option>
+                    <option value="HND 1">HND 1</option>
+                    <option value="HND 2">HND 2</option>
                   </select>
                 </div>
                 <div className="form-group" style={{flex: 1}}>

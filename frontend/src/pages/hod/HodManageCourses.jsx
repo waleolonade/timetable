@@ -118,7 +118,7 @@ const HodManageCourses = () => {
               course_code: cols[0],
               course_name: cols[1],
               credit_unit: parseInt(cols[2]) || 2,
-              level: cols[3] || '100',
+              level: cols[3] || 'ND 1',
               semester: parseInt(cols[4]) || 1,
               student_population: parseInt(cols[5]) || 0,
               exam_duration: parseInt(cols[6]) || 120,
@@ -156,7 +156,7 @@ const HodManageCourses = () => {
     setCourseCode('');
     setCourseName('');
     setCreditUnit(2);
-    setLevel('100');
+    setLevel('ND 1');
     setSemester(1);
     setStudentPopulation(0);
     setExamDuration(120);
