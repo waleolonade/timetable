@@ -264,61 +264,61 @@ const ManageStudents = () => {
       </div>
 
       {isModalOpen && (
-        <div style={styles.overlay}>
-          <div style={styles.modal} className="slideDown">
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-              <h3 style={{margin: 0}}>Add Student</h3>
-              <button onClick={() => setIsModalOpen(false)} style={styles.closeBtn}>&times;</button>
+        <div style={modalOverlayStyle}>
+          <div style={modalStyle} className="slideDown">
+            <div style={modalHeaderStyle}>
+              <h2 style={{margin: 0, fontSize: '1.25rem', color: '#1a252f'}}>Add Student</h2>
+              <button onClick={() => setIsModalOpen(false)} style={{background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#94a3b8'}}>&times;</button>
             </div>
             
-            {error && <div className="alert alert-danger">{error}</div>}
-            
-            <form onSubmit={handleSave}>
-              <div style={{display: 'flex', gap: '15px', marginBottom: '15px'}}>
-                <div style={{flex: 1}}>
-                  <label>First Name</label>
-                  <input type="text" className="form-control" value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} required />
+            <form onSubmit={handleSave} style={{padding: '25px'}}>
+              {error && <div className="alert alert-danger" style={{padding: '10px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.9rem'}}>{error}</div>}
+              
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
+                <div>
+                  <label style={labelStyle}>First Name *</label>
+                  <input type="text" style={inputStyle} value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} required placeholder="E.g. John" />
                 </div>
-                <div style={{flex: 1}}>
-                  <label>Last Name</label>
-                  <input type="text" className="form-control" value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} required />
+                <div>
+                  <label style={labelStyle}>Last Name *</label>
+                  <input type="text" style={inputStyle} value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} required placeholder="E.g. Doe" />
                 </div>
               </div>
 
-              <div style={{marginBottom: '15px'}}>
-                <label>Matric No</label>
-                <input type="text" className="form-control" value={formData.matric_no} onChange={e => setFormData({...formData, matric_no: e.target.value})} required />
+              <div style={{marginTop: '20px'}}>
+                <label style={labelStyle}>Matric No *</label>
+                <input type="text" style={inputStyle} value={formData.matric_no} onChange={e => setFormData({...formData, matric_no: e.target.value})} required placeholder="E.g. CS/2026/001" />
               </div>
 
-              <div style={{display: 'flex', gap: '15px', marginBottom: '15px'}}>
-                <div style={{flex: 1}}>
-                  <label>Level</label>
-                  <select className="form-control" value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})} required>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px'}}>
+                <div>
+                  <label style={labelStyle}>Level *</label>
+                  <select style={inputStyle} value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})} required>
                     <option value="ND 1">ND 1</option>
                     <option value="ND 2">ND 2</option>
                     <option value="HND 1">HND 1</option>
                     <option value="HND 2">HND 2</option>
                   </select>
                 </div>
-                <div style={{flex: 1}}>
-                  <label>Programme</label>
-                  <input type="text" className="form-control" placeholder="e.g. BSc Computer Science" value={formData.programme} onChange={e => setFormData({...formData, programme: e.target.value})} required />
+                <div>
+                  <label style={labelStyle}>Programme *</label>
+                  <input type="text" style={inputStyle} placeholder="E.g. BSc Computer Science" value={formData.programme} onChange={e => setFormData({...formData, programme: e.target.value})} required />
                 </div>
               </div>
 
               {user?.role?.toLowerCase() !== 'hod' && (
-                <div style={{marginBottom: '20px'}}>
-                  <label>Department</label>
-                  <select className="form-control" value={formData.department_id} onChange={e => setFormData({...formData, department_id: e.target.value})} required>
-                    <option value="">-- Select --</option>
+                <div style={{marginTop: '20px'}}>
+                  <label style={labelStyle}>Department *</label>
+                  <select style={inputStyle} value={formData.department_id} onChange={e => setFormData({...formData, department_id: e.target.value})} required>
+                    <option value="">-- Select Department --</option>
                     {departments.map(d => <option key={d.id} value={d.id}>{d.department_name}</option>)}
                   </select>
                 </div>
               )}
 
-              <div style={{display: 'flex', justifyContent: 'flex-end', gap: '10px'}}>
-                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Add Student</button>
+              <div style={{marginTop: '30px', display: 'flex', justifyContent: 'flex-end', gap: '12px'}}>
+                <button type="button" onClick={() => setIsModalOpen(false)} style={{padding: '10px 20px', background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 600}}>Cancel</button>
+                <button type="submit" style={{padding: '10px 20px', background: '#0f172a', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 600}}>Add Student</button>
               </div>
             </form>
           </div>
@@ -328,11 +328,11 @@ const ManageStudents = () => {
   );
 };
 
-const styles = {
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: 'white', padding: '30px', borderRadius: '16px', width: '450px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
-  closeBtn: { background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#888' }
-};
+const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 };
+const modalStyle = { background: 'white', width: '100%', maxWidth: '600px', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)', overflow: 'hidden' };
+const modalHeaderStyle = { padding: '20px 25px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafbfc' };
+const labelStyle = { display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '6px' };
+const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem', boxSizing: 'border-box', background: '#f8fafc' };
 
 const thStyle = { padding: '15px 20px', textAlign: 'left', fontWeight: '600', color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e2e8f0' };
 const tdStyle = { padding: '15px 20px', borderBottom: '1px solid #f1f5f9', color: '#334155', fontSize: '0.95rem' };
